@@ -43,11 +43,17 @@ def get_usable_output_length(base, space, bias):
 
 class Counter(object):
     '''A class that counts permutations/combinations.'''
+    _case_sensitive = False             # If not case sensitive, everything will be
+                                        # treated as uppercase.
+
     def __init__(self, data=None, epsilon=(2** -64)):
         '''epsilon is the percent more that combinations with lower enumerations appear
            than their higher enumeration siblings. Essentially, an amount of bias. Smaller
            epsilons require more input data to generate the same amount of entropy for
            non-power-of-two symbol sizes.'''
+
+        if not self._case_sensitive:
+            data = data.upper()
 
         # If all of the symbols are the same length, make spaces optional.
         if [s for s in self.symbols if len(s) != len(self.symbols[0])]:

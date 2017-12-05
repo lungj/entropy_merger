@@ -1,4 +1,3 @@
-import math
 from . import Counter
 
 class Parser(Counter):
@@ -13,12 +12,7 @@ class Parser(Counter):
         53          | 196
     '''
     name = 'cards'
-    def __init__(self, data):
-        super(Parser, self).__init__(data=data.upper())
-
-    @property
-    def with_replacement(self):
-        return False
+    with_replacement = False
 
     @property
     def symbols(self):
