@@ -49,11 +49,14 @@ class Counter(object):
            epsilons require more input data to generate the same amount of entropy for
            non-power-of-two symbol sizes.'''
 
-        # If all of the symbols are 1-character long, make spaces optional.
-        if [s for s in self.symbols if len(s) != 1]:
+        # If all of the symbols are the same length, make spaces optional.
+        if [s for s in self.symbols if len(s) != len(self.symbols[0])]:
             data = data.split(' ')
         else:
-            data = list(data.replace(' ', ''))
+            data = data.replace(' ', '')
+            symbol_len = len(self.symbols[0])
+            # Group the data into symbol_len-sized chunks
+            data = [data[i:i + symbol_len] for i in range(0, len(data), symbol_len)]
 
         # If the set to be counted has replacements, ensure the entire symbol space is
         # used.
