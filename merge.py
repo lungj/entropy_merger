@@ -18,21 +18,27 @@ def decode_line(line, base):
     interpretations = []
     for parser in parsers:
         try:
-            p = parser(line)
-            src_entropy = p.random_symbols(base)
-            interpretations.append(src_entropy)
-            print(len(src_entropy),'symbols of entropy from', p.name)
+            interpretations.append(parser(line))
         except ParseError:
             pass
 
-    # Ensure interpretation exists and is unique.
-    if len(interpretations) > 1:
-        raise ValueError("Ambiguous line.")
-    elif len(interpretations) == 0:
+    # Ensure interpretation exists and is unique; select the interpretation
+    # with the smallest symbol set size.
+    interpretations.sort(key=lambda x: len(x.symbols))
+
+    if len(interpretations) == 0:
         raise ValueError("No interpretations.")
 
+    if len(interpretations) > 1 and \
+        len(interpretations[0].symbols) == len(interpretations[1].symbols):
+        raise ValueError("Ambiguous line.")
+
+
+    interpretation = interpretations[0]
+    src_entropy = interpretation.random_symbols(base)
+    print(len(src_entropy),'symbols of entropy from', interpretation.name)
     # Return the interpretation.
-    return interpretations[0]
+    return src_entropy
 
 if __name__ == '__main__':
     # Parse command line options.
