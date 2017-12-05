@@ -25,33 +25,40 @@ class Counter(object):
             data = data.upper()
 
         # If all of the symbols are the same length, make spaces optional.
-        if [s for s in self.symbols if len(s) != len(self.symbols[0])]:
-            data = data.split(' ')
-        else:
+        if self.uniform_symbol_size:
+            # Strip spaces and group the data into symbol-lengthed chunks
             data = data.replace(' ', '')
             symbol_len = len(self.symbols[0])
-            # Group the data into symbol_len-sized chunks
             data = [data[i:i + symbol_len] for i in range(0, len(data), symbol_len)]
+        else:
+            data = data.split(' ')
 
-        # If the set to be counted has replacements, ensure the entire symbol space is
-        # used.
-        if self.with_replacement:
-            if set(data) != set(self.symbols):
-                raise ParseError('Not valid for this symbol set')
+        # Check if this data conforms to this parer's expectations.
+        if not set(self.symbols).issuperset(set(data)):
+            raise ParseError('Invalid symbols for this symbol set were found.')
 
-        # If set to be counted has no replacements, ensure symbol set is valid and
-        # no duplicates exist.
-        # Currently no support where duplicate symbols can appear in the symbol set.
+        # If set to be counted has no replacements, ensure elements are not used more
+        # times than they are available.
         if not self.with_replacement:
-            if not set(self.symbols).issuperset(set(data)) or len(data) != len(set(data)):
+            if [val for val in data if data.count(val) > self.symbols.count(val)]:
                 raise ParseError('Not valid for this symbol set')
 
         self._data = data
         self._epsilon = epsilon
 
+
     @property
     def with_replacement(self):
+        '''Return True iff this process is one done with replacement (combinatorics).
+        False for no replacement (permutations, such as a shuffled deck of cards).'''
         return True
+
+
+    @property
+    def uniform_symbol_size(self):
+        '''Return True iff all symbols for this class have the same length.'''
+        return len([s for s in self.symbols if len(s) != len(self.symbols[0])]) == 0
+
 
     def random_symbols(self, base):
         '''
