@@ -97,6 +97,7 @@ class Counter(object):
         count = 0               # Enumeration of the witnessed event.
         symbols = self.symbols[:]
 
+        ### This implementation does not support counting sets with duplicates.
         for symbol in self._data:
             event_space_size *= len(symbols)
             count = count * len(symbols) + symbols.index(symbol)
