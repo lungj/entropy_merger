@@ -45,17 +45,26 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Merge entropy from multiple sources.')
     parser.add_argument('-H', '--entropy', metavar='H', type=int, nargs=1,
                     default=[256],
-                    help='Symbols of entropy to produce')
+                    help='Symbols of entropy to produce.')
     parser.add_argument('-b', '--base', metavar='b', type=int, nargs=1,
                     default=[2],
-                    help='Base of entropy')
-
+                    help='Base of entropy.')
+    parser.add_argument(metavar='filename', type=str, nargs='?', dest='filename',
+                    help='Filename with entropy, one line per entropy source. Defaults to stdin.')
     args = parser.parse_args(sys.argv[1:])
 
+    # Open selected entropy source file.
+    if args.filename:
+        entropy_source = open(args.filename, 'r')
+    else:
+        entropy_source = sys.stdin
+
     symbols = []
-    for line in sys.stdin.read().strip().split('\n'):
+    for line in entropy_source.read().strip().split('\n'):
         symbols.extend(decode_line(line.strip(), args.base[0]))
 
-    print('Available entropy: ', len(symbols))
+    entropy_source.close()
+
+    print('Available entropy:', len(symbols))
     entropy = reduce_space(args.base[0], symbols, args.entropy[0])
-    print(entropy)
+    print('Random sequence:\n', entropy)
